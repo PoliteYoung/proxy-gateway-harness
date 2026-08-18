@@ -42,6 +42,64 @@ Use proxy-gateway-harness to audit this Linux VPS, build the protocol matrix,
 validate the Sub-Store output, and publish only if every required gate passes.
 ```
 
+## Invoke the skill
+
+Call the skill explicitly with `$proxy-gateway-harness`. For a new VPS, use
+three separate stages so inspection, deployment, and publication remain
+reviewable.
+
+### 1. Read-only preflight
+
+```text
+$proxy-gateway-harness bootstrap
+
+This is a new Linux VPS. Perform a read-only preflight. Inspect the OS,
+architecture, systemd, root access, public IPv4/IPv6, DNS, occupied TCP/UDP
+ports, firewall, and domain resolution. Propose a certificate, protocol, and
+port matrix. Do not install services or execute remote scripts yet.
+```
+
+### 2. Build a candidate gateway
+
+```text
+$proxy-gateway-harness bootstrap
+
+Use the approved preflight plan to build a candidate gateway with the ygkkk
+domain/IP certificate workflow, AGSBX, x-ui, Xray, and sing-box. Pin and
+checksum every installer before execution. Configure Sub-Store sources
+separately. Keep H2 and real H3/QUIC distinct. Back up before each mutation,
+validate configs before restart, and do not publish the production
+subscription yet.
+```
+
+Provide the domain, desired IPv4/IPv6 behavior, Sub-Store location, and whether
+firewall changes are authorized. Keep credentials out of the prompt whenever
+Codex can discover them securely on the host.
+
+### 3. Validate and publish
+
+```text
+$proxy-gateway-harness audit probe publish
+
+Treat running server configs as truth and the cache-bypassed Sub-Store public
+artifact as the acceptance target. Trace every node through source,
+collection, URI, sing-box, and Mihomo outputs. Test each published node with
+the corresponding core, verify certificate SAN/SNI, prove H3 uses UDP/QUIC,
+and run bounded TUN smoke tests. Block publication if any required gate fails.
+If all gates pass, publish atomically, download the public URL again, retest,
+and report the rollback point.
+```
+
+To audit an existing subscription without changing the host:
+
+```text
+$proxy-gateway-harness audit probe
+
+Audit and test this Sub-Store subscription with the corresponding cores:
+https://example.com/subscription
+Do not modify services or publish anything.
+```
+
 ## Bundled tools
 
 Audit a URI subscription:
