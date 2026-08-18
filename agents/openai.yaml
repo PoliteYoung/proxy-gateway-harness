@@ -1,0 +1,4 @@
+interface:
+  display_name: "Proxy Gateway Harness"
+  short_description: "Build and validate multi-protocol Linux VPS gateways"
+  default_prompt: "Build or audit this Linux VPS proxy gateway, preserve Sub-Store fields, test every published node with its corresponding core, and publish only after all gates pass."

@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+reports/
+local-config.*
+*.key
+*.pem
+*.crt
+*.cer
+*.db
