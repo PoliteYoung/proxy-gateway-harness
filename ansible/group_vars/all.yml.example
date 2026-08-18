@@ -1,0 +1,19 @@
+---
+# Pin a tag or immutable commit. Do not deploy from a moving branch.
+proxy_gateway_harness_skill_version: "v0.1.0"
+
+# Firewall changes are opt-in. Include SSH before enabling them.
+proxy_gateway_harness_manage_firewall: false
+proxy_gateway_harness_tcp_ports:
+  - 22
+proxy_gateway_harness_udp_ports: []
+
+# Third-party installers are opt-in and must be pinned by SHA-256.
+# Put credentials and installer arguments containing secrets in Ansible Vault.
+proxy_gateway_harness_installers: []
+# proxy_gateway_harness_installers:
+#   - name: x-ui
+#     url: https://example.invalid/x-ui-installer.sh
+#     sha256: REPLACE_WITH_64_HEX_CHARACTERS
+#     argv: []
+#     creates: /usr/local/x-ui/x-ui

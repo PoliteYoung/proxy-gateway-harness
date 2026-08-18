@@ -44,3 +44,5 @@ Treat server configuration as truth, Sub-Store as the publication authority, and
 - `scripts/release_gate.py`: combine static and probe reports into a deterministic publication decision.
 
 Reports must contain protocol-matrix counts, passes, failures, blockers, artifact hashes, baseline differences, publication decision, and rollback identifier.
+
+For repeatable provisioning, use `ansible/site.yml` after copying and reviewing the example inventory and variables. For a fresh VPS, customize `cloud-init/proxy-gateway.yaml.example` with an immutable commit. Both paths prepare the host; neither runs unreviewed third-party installers by default.

@@ -1,0 +1,54 @@
+---
+- name: Detect UFW
+  ansible.builtin.command: sh -c 'command -v ufw'
+  register: proxy_gateway_harness_ufw
+  changed_when: false
+  failed_when: false
+
+- name: Detect firewalld client
+  ansible.builtin.command: sh -c 'command -v firewall-cmd'
+  register: proxy_gateway_harness_firewalld
+  changed_when: false
+  failed_when: false
+
+- name: Select firewall backend
+  ansible.builtin.set_fact:
+    proxy_gateway_harness_selected_firewall: >-
+      {{ proxy_gateway_harness_firewall_backend if proxy_gateway_harness_firewall_backend != 'auto'
+         else ('ufw' if proxy_gateway_harness_ufw.rc == 0 else ('firewalld' if proxy_gateway_harness_firewalld.rc == 0 else 'none')) }}
+
+- name: Require a supported firewall backend
+  ansible.builtin.assert:
+    that:
+      - proxy_gateway_harness_selected_firewall in ["ufw", "firewalld"]
+    fail_msg: Install UFW or firewalld, or keep proxy_gateway_harness_manage_firewall disabled.
+
+- name: Add UFW TCP rules
+  ansible.builtin.command: "ufw allow {{ item }}/tcp"
+  loop: "{{ proxy_gateway_harness_tcp_ports | unique }}"
+  register: proxy_gateway_harness_ufw_tcp
+  changed_when: "'Skipping' not in proxy_gateway_harness_ufw_tcp.stdout"
+  when: proxy_gateway_harness_selected_firewall == "ufw"
+
+- name: Add UFW UDP rules
+  ansible.builtin.command: "ufw allow {{ item }}/udp"
+  loop: "{{ proxy_gateway_harness_udp_ports | unique }}"
+  register: proxy_gateway_harness_ufw_udp
+  changed_when: "'Skipping' not in proxy_gateway_harness_ufw_udp.stdout"
+  when: proxy_gateway_harness_selected_firewall == "ufw"
+
+- name: Add permanent firewalld TCP rules
+  ansible.builtin.command: "firewall-cmd --permanent --add-port={{ item }}/tcp"
+  loop: "{{ proxy_gateway_harness_tcp_ports | unique }}"
+  register: proxy_gateway_harness_firewalld_tcp
+  changed_when: "'ALREADY_ENABLED' not in proxy_gateway_harness_firewalld_tcp.stderr"
+  when: proxy_gateway_harness_selected_firewall == "firewalld"
+  notify: Reload firewalld
+
+- name: Add permanent firewalld UDP rules
+  ansible.builtin.command: "firewall-cmd --permanent --add-port={{ item }}/udp"
+  loop: "{{ proxy_gateway_harness_udp_ports | unique }}"
+  register: proxy_gateway_harness_firewalld_udp
+  changed_when: "'ALREADY_ENABLED' not in proxy_gateway_harness_firewalld_udp.stderr"
+  when: proxy_gateway_harness_selected_firewall == "firewalld"
+  notify: Reload firewalld

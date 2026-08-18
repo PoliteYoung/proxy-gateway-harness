@@ -8,3 +8,8 @@ local-config.*
 *.crt
 *.cer
 *.db
+ansible/inventory.yml
+ansible/group_vars/all.yml
+ansible/group_vars/vault.yml
+ansible/*.retry
+cloud-init/proxy-gateway.yaml

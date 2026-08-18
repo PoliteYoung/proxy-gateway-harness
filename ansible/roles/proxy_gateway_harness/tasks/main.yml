@@ -1,0 +1,46 @@
+---
+- name: Run gateway preflight checks
+  ansible.builtin.import_tasks: preflight.yml
+
+- name: Install required packages
+  ansible.builtin.package:
+    name: "{{ proxy_gateway_harness_packages }}"
+    state: present
+
+- name: Create harness directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ proxy_gateway_harness_cache_dir }}", mode: "0700" }
+    - { path: "{{ proxy_gateway_harness_state_dir }}", mode: "0700" }
+    - { path: "{{ proxy_gateway_harness_codex_home }}/skills", mode: "0755" }
+
+- name: Install pinned proxy gateway skill
+  ansible.builtin.git:
+    repo: "{{ proxy_gateway_harness_repo }}"
+    dest: "{{ proxy_gateway_harness_root }}"
+    version: "{{ proxy_gateway_harness_skill_version }}"
+    depth: 1
+    force: false
+
+- name: Link skill into Codex
+  ansible.builtin.file:
+    src: "{{ proxy_gateway_harness_root }}"
+    dest: "{{ proxy_gateway_harness_codex_home }}/skills/proxy-gateway-harness"
+    state: link
+    force: false
+
+- name: Install explicitly pinned third-party installers
+  ansible.builtin.include_tasks: installer.yml
+  loop: "{{ proxy_gateway_harness_installers }}"
+  loop_control:
+    loop_var: installer
+    label: "{{ installer.name | default('unnamed') }}"
+
+- name: Configure opt-in firewall rules
+  ansible.builtin.import_tasks: firewall.yml
+  when: proxy_gateway_harness_manage_firewall | bool

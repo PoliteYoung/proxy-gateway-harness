@@ -1,0 +1,22 @@
+---
+proxy_gateway_harness_supported_architectures:
+  - x86_64
+  - aarch64
+proxy_gateway_harness_root: /opt/proxy-gateway-harness
+proxy_gateway_harness_cache_dir: /var/cache/proxy-gateway-harness
+proxy_gateway_harness_state_dir: /var/lib/proxy-gateway-harness
+proxy_gateway_harness_repo: https://github.com/PoliteYoung/proxy-gateway-harness.git
+proxy_gateway_harness_skill_version: ""
+proxy_gateway_harness_codex_home: /root/.codex
+proxy_gateway_harness_packages:
+  - ca-certificates
+  - curl
+  - git
+  - openssl
+  - python3
+proxy_gateway_harness_manage_firewall: false
+proxy_gateway_harness_firewall_backend: auto
+proxy_gateway_harness_tcp_ports:
+  - 22
+proxy_gateway_harness_udp_ports: []
+proxy_gateway_harness_installers: []

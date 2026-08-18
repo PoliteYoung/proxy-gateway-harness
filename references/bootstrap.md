@@ -14,3 +14,9 @@ Require root, systemd, curl, OpenSSL, Python 3, outbound HTTPS, a public address
 6. Add Sub-Store only after direct source nodes pass their corresponding cores.
 
 Do not promise support for NAT-only machines, macOS, Windows, containers without TUN privileges, or non-systemd distributions without adapting the workflow.
+
+## Automation
+
+Use the bundled Ansible role for repeatable existing-host preparation. Copy `ansible/group_vars/all.yml.example` to `ansible/group_vars/all.yml`, pin a release or commit, review firewall ports, and keep third-party installer secrets in Ansible Vault.
+
+Use `cloud-init/proxy-gateway.yaml.example` only for a fresh host. Replace `PINNED_COMMIT` before supplying user data. It installs prerequisites and the Skill, then stops so an operator or Codex can audit the machine before deploying proxy services.

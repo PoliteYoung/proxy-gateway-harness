@@ -1,0 +1,26 @@
+---
+- name: Require systemd
+  ansible.builtin.assert:
+    that:
+      - ansible_service_mgr == "systemd"
+    fail_msg: This role supports systemd Linux VPS hosts only.
+
+- name: Require a supported architecture
+  ansible.builtin.assert:
+    that:
+      - ansible_architecture in proxy_gateway_harness_supported_architectures
+    fail_msg: "Unsupported architecture: {{ ansible_architecture }}"
+
+- name: Require an immutable skill version
+  ansible.builtin.assert:
+    that:
+      - proxy_gateway_harness_skill_version | length > 0
+      - proxy_gateway_harness_skill_version not in ["main", "master", "HEAD"]
+    fail_msg: Set proxy_gateway_harness_skill_version to a release tag or immutable commit.
+
+- name: Require SSH access when managing the firewall
+  ansible.builtin.assert:
+    that:
+      - 22 in proxy_gateway_harness_tcp_ports
+    fail_msg: Keep TCP port 22 allowed or deliberately override this check before enabling firewall management.
+  when: proxy_gateway_harness_manage_firewall | bool

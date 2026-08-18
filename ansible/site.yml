@@ -1,0 +1,6 @@
+---
+- name: Prepare proxy gateway hosts
+  hosts: all
+  become: true
+  roles:
+    - role: proxy_gateway_harness

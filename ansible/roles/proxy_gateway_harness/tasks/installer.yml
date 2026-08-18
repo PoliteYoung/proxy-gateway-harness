@@ -1,0 +1,28 @@
+---
+- name: Validate installer metadata
+  ansible.builtin.assert:
+    that:
+      - installer.name is defined
+      - installer.url is defined
+      - installer.url.startswith("https://")
+      - installer.sha256 is defined
+      - installer.sha256 is match("^[0-9a-fA-F]{64}$")
+      - installer.creates is defined
+      - installer.creates.startswith("/")
+    fail_msg: Each installer requires name, HTTPS URL, SHA-256, and an absolute creates path.
+
+- name: Download verified installer
+  ansible.builtin.get_url:
+    url: "{{ installer.url }}"
+    dest: "{{ proxy_gateway_harness_cache_dir }}/{{ installer.name }}.sh"
+    checksum: "sha256:{{ installer.sha256 }}"
+    owner: root
+    group: root
+    mode: "0700"
+    force: false
+
+- name: Execute verified installer once
+  ansible.builtin.command:
+    argv: "{{ ['/bin/bash', proxy_gateway_harness_cache_dir + '/' + installer.name + '.sh'] + (installer.argv | default([])) }}"
+    creates: "{{ installer.creates }}"
+  no_log: "{{ installer.no_log | default(true) }}"

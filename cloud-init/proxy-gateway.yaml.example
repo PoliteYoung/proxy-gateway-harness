@@ -1,0 +1,41 @@
+#cloud-config
+
+# Replace PINNED_COMMIT with an immutable commit from the repository.
+# This prepares the host and installs the Codex skill. It deliberately does
+# not execute ygkkk, AGSBX, or x-ui installers during first boot.
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - ca-certificates
+  - curl
+  - git
+  - openssl
+  - python3
+
+write_files:
+  - path: /usr/local/sbin/install-proxy-gateway-skill
+    owner: root:root
+    permissions: "0750"
+    content: |
+      #!/bin/sh
+      set -eu
+      repo=https://github.com/PoliteYoung/proxy-gateway-harness.git
+      revision=PINNED_COMMIT
+      destination=/opt/proxy-gateway-harness
+      if [ ! -d "$destination/.git" ]; then
+        git clone --filter=blob:none "$repo" "$destination"
+      fi
+      git -C "$destination" fetch --depth=1 origin "$revision"
+      git -C "$destination" checkout --detach FETCH_HEAD
+      test "$(git -C "$destination" rev-parse HEAD)" = "$revision"
+      install -d -m 0755 /root/.codex/skills
+      ln -sfn "$destination" /root/.codex/skills/proxy-gateway-harness
+      python3 -m unittest discover -s "$destination/tests" -v
+      touch /var/lib/proxy-gateway-harness-ready
+
+runcmd:
+  - [/usr/local/sbin/install-proxy-gateway-skill]
+
+final_message: "Proxy Gateway Harness preparation finished after $UPTIME seconds. Review cloud-init logs and run the bootstrap audit before installing proxy services."

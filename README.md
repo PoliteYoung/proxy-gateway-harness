@@ -68,6 +68,26 @@ python3 scripts/release_gate.py \
   --output release-decision.json
 ```
 
+## Prepare a Linux VPS
+
+For an existing VPS, copy the Ansible example inventory and variables, pin a
+release or immutable commit, then run:
+
+```bash
+cd ansible
+cp inventory.example.yml inventory.yml
+cp group_vars/all.yml.example group_vars/all.yml
+ansible-playbook -i inventory.yml site.yml --check --diff
+ansible-playbook -i inventory.yml site.yml
+```
+
+For a new VPS, customize `cloud-init/proxy-gateway.yaml.example` by replacing
+`PINNED_COMMIT` with a full commit hash before supplying it as user data.
+
+Both methods prepare the host and install the Skill. They do not run ygkkk,
+AGSBX, or x-ui installers unless the operator explicitly supplies audited,
+SHA-256-pinned installer metadata.
+
 ## Safety model
 
 The repository does not contain server credentials or automatic remote
